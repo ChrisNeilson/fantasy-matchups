@@ -3,6 +3,27 @@
 
     <string name="app_name">Fantasy Matchups</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Chillin</string>
+    <string name="login_title">Login Screen</string>
+    <string name="login">Login</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="quarterbacks">Quarterbacks</string>
+    <string name="runningbacks">Runningbacks</string>
+    <string name="receivers">Wide Receivers</string>
+    <string name="kickers">Kickers</string>
+    <string name="tightends">Tight Ends</string>
+    <string name="dst">DST</string>
+    <string name="your_team">Your Team</string>
+    <string name="research">Research</string>
+    <string name="title_activity_display_research">Research</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="site_prompt">Choose a Site</string>
+    
+    <string-array name="site_array">
+        <item>NFL.com</item>
+        <item>Yahoo!</item>
+        <item>CBS</item>
+        <item>TSN</item>
+    </string-array>
 
 </resources>
