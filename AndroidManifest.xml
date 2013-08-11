@@ -3,10 +3,11 @@
     package="com.cneilson.android.fantasymatchups"
     android:versionCode="1"
     android:versionName="1.0" >
-
+    
+    <uses-permission android:name="android.permission.INTERNET" />
+        
     <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="17" />
+        android:minSdkVersion="8" />
 
     <application
         android:allowBackup="true"
@@ -30,6 +31,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.cneilson.android.fantasymatchups.MainActivity" />
         </activity>
+        <activity
+            android:name="com.cneilson.android.fantasymatchups.LoadHomePageActivity"
+            android:label="@string/title_activity_load_home_page"
+            android:parentActivityName="com.cneilson.android.fantasymatchups.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cneilson.android.fantasymatchups.MainActivity" />
+        </activity>
     </application>
-
+    
 </manifest>

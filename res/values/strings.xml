@@ -18,12 +18,14 @@
     <string name="title_activity_display_research">Research</string>
     <string name="hello_world">Hello world!</string>
     <string name="site_prompt">Choose a Site</string>
-    
+
     <string-array name="site_array">
         <item>NFL.com</item>
         <item>Yahoo!</item>
         <item>CBS</item>
         <item>TSN</item>
     </string-array>
+
+    <string name="title_activity_load_home_page">Home</string>
 
 </resources>
