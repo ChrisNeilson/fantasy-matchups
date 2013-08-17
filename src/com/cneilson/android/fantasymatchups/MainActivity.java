@@ -58,17 +58,20 @@ public class MainActivity extends Activity
         Intent intent = new Intent(this, LoadHomePageActivity.class);
         EditText editTextUsername = (EditText) findViewById(R.id.username);
         EditText editTextPassword = (EditText) findViewById(R.id.password);
+        Spinner siteSpinner = (Spinner) findViewById(R.id.site_spinner);
         
         String username = editTextUsername.getText().toString();
         String password = editTextPassword.getText().toString();
-        connectToSite(username, password);
+        String site = siteSpinner.getSelectedItem().toString();
+
+        connectToSite(username, password, site);
         
         intent.putExtra(USERNAME, username);
         startActivity(intent);
     }
     
-    // Currently connects to Y!. Add another parameter when we want to expand to more sites
-    public static void connectToSite(String username, String password)
+    // Currently site parameter is ignored - only connects to Y!.
+    public static void connectToSite(String username, String password, String site)
     {
         Connection.Response res = null;
         Map<String, String> loginCookies = new HashMap<String, String>();
