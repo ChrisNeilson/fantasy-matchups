@@ -64,16 +64,23 @@ public class MainActivity extends Activity
         String password = editTextPassword.getText().toString();
         String site = siteSpinner.getSelectedItem().toString();
 
-        connectToSite(username, password, SiteName.YAHOO);
+        try {
+            getTeamLinks(username, password, SiteName.YAHOO);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         
         intent.putExtra(USERNAME, username);
         startActivity(intent);
     }
     
     // Currently site parameter is ignored - only connects to Y!.
-    public static void connectToSite(String username, String password, SiteName site)
+    public static void getTeamLinks(String username, String password, SiteName site) throws IOException
     {
         String loginUrl = "";
+        String loginField = "";
+        String passwordField = "";
         switch (site)
         {
             case CBS:
@@ -84,27 +91,22 @@ public class MainActivity extends Activity
                 break;
             case YAHOO:
                 loginUrl = "https://login.yahoo.com/config/login?.src=spt&.intl=us&.lang=en-US&.done=http://football.fantasysports.yahoo.com/";
+                loginField = "login";
+                passwordField = "passwd";
                 break;
         }
         
-        Connection.Response res = null;
+        Connection.Response response = null;
         Map<String, String> loginCookies = new HashMap<String, String>();
         
-        try 
-        {
-            res = Jsoup.connect(loginUrl)
-                    .data("login", username, "passwd", password)
-                    .method(Method.POST)
-                    .execute();
-        } 
-        catch (IOException e) 
-        {
-            e.printStackTrace();
-        }
+        response = Jsoup.connect(loginUrl)
+                .data(loginField, username, passwordField, password)
+                .method(Method.POST)
+                .execute();
         
-        if (res != null)
+        if (response != null)
         {
-            loginCookies = res.cookies();
+            loginCookies = response.cookies();
         }
         
         // If the login was incorrect, no cookies will be returned
@@ -114,18 +116,11 @@ public class MainActivity extends Activity
         }
         
         // Get all the links to your teams on this site
-        try 
-        {
-            Document roster = Jsoup.connect("http://football.fantasysports.yahoo.com/")
-                    .cookies(loginCookies)
-                    .get();
-            
-            Elements teamLinks = roster.select("a[class][href^=http://football.fantasysports.yahoo.com/f1/]");
-        } 
-        catch (IOException e) 
-        {
-            e.printStackTrace();
-        }
+        Document doc = Jsoup.connect("http://football.fantasysports.yahoo.com/")
+            .cookies(loginCookies)
+            .get();
+        
+        Elements teamLinks = doc.select("a[class][href^=http://football.fantasysports.yahoo.com/f1/]");
       
     }
     
