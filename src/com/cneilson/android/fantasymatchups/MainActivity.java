@@ -64,21 +64,35 @@ public class MainActivity extends Activity
         String password = editTextPassword.getText().toString();
         String site = siteSpinner.getSelectedItem().toString();
 
-        connectToSite(username, password, site);
+        connectToSite(username, password, SiteName.YAHOO);
         
         intent.putExtra(USERNAME, username);
         startActivity(intent);
     }
     
     // Currently site parameter is ignored - only connects to Y!.
-    public static void connectToSite(String username, String password, String site)
+    public static void connectToSite(String username, String password, SiteName site)
     {
+        String loginUrl = "";
+        switch (site)
+        {
+            case CBS:
+                break;
+            case NFL:
+                break;
+            case TSN:
+                break;
+            case YAHOO:
+                loginUrl = "https://login.yahoo.com/config/login?.src=spt&.intl=us&.lang=en-US&.done=http://football.fantasysports.yahoo.com/";
+                break;
+        }
+        
         Connection.Response res = null;
         Map<String, String> loginCookies = new HashMap<String, String>();
         
         try 
         {
-            res = Jsoup.connect("https://login.yahoo.com/config/login?.src=spt&.intl=us&.lang=en-US&.done=http://football.fantasysports.yahoo.com/")
+            res = Jsoup.connect(loginUrl)
                     .data("login", username, "passwd", password)
                     .method(Method.POST)
                     .execute();
