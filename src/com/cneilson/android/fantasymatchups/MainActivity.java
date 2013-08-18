@@ -29,7 +29,6 @@ public class MainActivity extends Activity
     EditText inputPassword;
     Spinner siteSpinner;
     String TEAMSANDLEAGUES;
-    Boolean loginVerified;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) 
@@ -41,7 +40,6 @@ public class MainActivity extends Activity
         inputUsername = (EditText) findViewById(R.id.username);
         inputPassword = (EditText) findViewById(R.id.password);
         siteSpinner = (Spinner) findViewById(R.id.site_spinner);
-        loginVerified = false;
     }
 
     @Override
@@ -149,7 +147,6 @@ public class MainActivity extends Activity
             {
                 return null;
             }
-            loginVerified = true;
             
             // Get all the links to your teams on this site
             try 
@@ -186,7 +183,7 @@ public class MainActivity extends Activity
         public void onPostExecute(HashMap<String, String> teamsAndLeagues) 
         {
             progress.dismiss();
-            if (loginVerified)
+            if (teamsAndLeagues != null)
             {
                 Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
                 intent.putExtra(TEAMSANDLEAGUES, teamsAndLeagues); 
