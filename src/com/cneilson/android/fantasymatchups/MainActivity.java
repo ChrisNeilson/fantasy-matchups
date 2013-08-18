@@ -108,7 +108,13 @@ public class MainActivity extends Activity
                 case CBS:
                     break;
                 case NFL:
-                    break;
+                	loginUrl = "https://id2.s.nfl.com/fans/mobile/login?s=fantasy&returnTo=http%3A%2F%2Fm.fantasy.nfl.com%2F";
+                	loginField = "username";
+                	passwordField = "password";
+                	topLevelUrl = "http://fantasy.nfl.com/myleagues";
+                	teamNameSearch = "a:matches(/league/[0-9]+/team/)";
+                	leagueNameSearch = "a[href~=/league/[0-9]+$]";
+                	break;
                 case TSN:
                     break;
                 case YAHOO:
@@ -127,13 +133,15 @@ public class MainActivity extends Activity
             try 
             {
                 response = Jsoup.connect(loginUrl)
-                        .data(loginField, username, passwordField, password)
+                		.followRedirects(true)
+                        .data(loginField, username, passwordField, password, "checkbox", "false")
                         .method(Method.POST)
                         .execute();
             }
             catch (IOException e) 
             {
                 // TODO Auto-generated catch block
+            	System.out.println(e.getMessage());
                 e.printStackTrace();
             }
               
