@@ -84,6 +84,7 @@ public class MainActivity extends Activity
     
         public void onPreExecute() 
         {
+            progress.setCancelable(false);
             progress.show();
         }
     
@@ -93,7 +94,7 @@ public class MainActivity extends Activity
             String username = inputUsername.getText().toString();
             String password = inputPassword.getText().toString();
             
-            SiteName sitename = SiteName.YAHOO; //hardcode
+            SiteName sitename = SiteName.determineSiteName(site);
               
             String loginUrl = "";
             String loginField = "";
