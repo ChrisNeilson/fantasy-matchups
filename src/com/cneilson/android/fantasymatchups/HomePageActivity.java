@@ -2,20 +2,24 @@ package com.cneilson.android.fantasymatchups;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Build;
 
-public class LoadHomePageActivity extends Activity {
+public class HomePageActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        Intent intent = getIntent();
+        String username = intent.getStringExtra("USERNAME");
+        
         setContentView(R.layout.activity_load_home_page);
-        // Show the Up button in the action bar.
-        setupActionBar();
     }
 
     /**

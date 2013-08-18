@@ -11,7 +11,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -21,8 +23,10 @@ import android.widget.Spinner;
 
 public class MainActivity extends Activity 
 {
-    
-    private static final String USERNAME = "com.cneilson.android.fantasymatchups.USERNAME";
+    EditText inputUsername;
+    EditText inputPassword;
+    Spinner siteSpinner;
+    String USERNAME;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) 
@@ -30,8 +34,11 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_android);
         setUpSiteSpinner();
+        
+        inputUsername = (EditText) findViewById(R.id.username);
+        inputPassword = (EditText) findViewById(R.id.password);
+        siteSpinner = (Spinner) findViewById(R.id.site_spinner);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) 
@@ -55,73 +62,101 @@ public class MainActivity extends Activity
     // Possibly home page will list your teams at that site?
     public void loadHomePage(View view) 
     {
-        Intent intent = new Intent(this, LoadHomePageActivity.class);
-        EditText editTextUsername = (EditText) findViewById(R.id.username);
-        EditText editTextPassword = (EditText) findViewById(R.id.password);
-        Spinner siteSpinner = (Spinner) findViewById(R.id.site_spinner);
-        
-        String username = editTextUsername.getText().toString();
-        String password = editTextPassword.getText().toString();
-        String site = siteSpinner.getSelectedItem().toString();
-
-        try {
-            getTeamLinks(username, password, SiteName.YAHOO);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        intent.putExtra(USERNAME, username);
-        startActivity(intent);
+        ProgressDialog progress = new ProgressDialog(this);
+        progress.setMessage("Loading...");
+        new GetTeamLinksTask(progress).execute();
     }
+        
     
-    // Currently site parameter is ignored - only connects to Y!.
-    public static void getTeamLinks(String username, String password, SiteName site) throws IOException
+    public class GetTeamLinksTask extends AsyncTask<Void, Void, Elements> 
     {
-        String loginUrl = "";
-        String loginField = "";
-        String passwordField = "";
-        switch (site)
+        private ProgressDialog progress;
+    
+        public GetTeamLinksTask(ProgressDialog progress) 
         {
-            case CBS:
-                break;
-            case NFL:
-                break;
-            case TSN:
-                break;
-            case YAHOO:
-                loginUrl = "https://login.yahoo.com/config/login?.src=spt&.intl=us&.lang=en-US&.done=http://football.fantasysports.yahoo.com/";
-                loginField = "login";
-                passwordField = "passwd";
-                break;
+            this.progress = progress;
         }
-        
-        Connection.Response response = null;
-        Map<String, String> loginCookies = new HashMap<String, String>();
-        
-        response = Jsoup.connect(loginUrl)
-                .data(loginField, username, passwordField, password)
-                .method(Method.POST)
-                .execute();
-        
-        if (response != null)
-        {
-            loginCookies = response.cookies();
-        }
-        
-        // If the login was incorrect, no cookies will be returned
-        if (loginCookies.size() == 0) 
-        {
-            return;
-        }
-        
-        // Get all the links to your teams on this site
-        Document doc = Jsoup.connect("http://football.fantasysports.yahoo.com/")
-            .cookies(loginCookies)
-            .get();
-        
-        Elements teamLinks = doc.select("a[class][href^=http://football.fantasysports.yahoo.com/f1/]");
-      
+    
+          public void onPreExecute() 
+          {
+            progress.show();
+          }
+    
+          public Elements doInBackground(Void... unused) 
+          {
+              String site = siteSpinner.getSelectedItem().toString();
+              String username = inputUsername.getText().toString();
+              String password = inputPassword.getText().toString();
+              
+              SiteName sitename = SiteName.YAHOO;
+              
+              String loginUrl = "";
+              String loginField = "";
+              String passwordField = "";
+              switch (sitename)
+              {
+                  case CBS:
+                      break;
+                  case NFL:
+                      break;
+                  case TSN:
+                      break;
+                  case YAHOO:
+                      loginUrl = "https://login.yahoo.com/config/login?.src=spt&.intl=us&.lang=en-US&.done=http://football.fantasysports.yahoo.com/";
+                      loginField = "login";
+                      passwordField = "passwd";
+                      break;
+              }
+              
+              Connection.Response response = null;
+              Map<String, String> loginCookies = new HashMap<String, String>();
+              
+              try {
+                response = Jsoup.connect(loginUrl)
+                          .data(loginField, username, passwordField, password)
+                          .method(Method.POST)
+                          .execute();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+              
+              if (response != null)
+              {
+                  loginCookies = response.cookies();
+              }
+              
+              // If the login was incorrect, no cookies will be returned
+              if (loginCookies.size() == 0) 
+              {
+                  return null;
+              }
+              
+              // Get all the links to your teams on this site
+            try {
+                Document doc = Jsoup.connect("http://football.fantasysports.yahoo.com/")
+                      .cookies(loginCookies)
+                      .get();
+                
+                Elements teamLinks = doc.select("a[class][href^=http://football.fantasysports.yahoo.com/f1/]");
+                return teamLinks;
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+              
+            return null;
+          }
+    
+          public void onPostExecute(Elements teamLinks) 
+          {
+            progress.dismiss();
+            Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
+            intent.putExtra(USERNAME, "teh_neilson");
+            startActivity(intent);
+            finish();
+          }
+    
     }
     
 }
