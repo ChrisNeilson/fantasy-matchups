@@ -27,6 +27,7 @@ public class MainActivity extends Activity
     EditText inputPassword;
     Spinner siteSpinner;
     String USERNAME;
+    Boolean loginVerified;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) 
@@ -38,6 +39,7 @@ public class MainActivity extends Activity
         inputUsername = (EditText) findViewById(R.id.username);
         inputPassword = (EditText) findViewById(R.id.password);
         siteSpinner = (Spinner) findViewById(R.id.site_spinner);
+        loginVerified = false;
     }
 
     @Override
@@ -57,17 +59,20 @@ public class MainActivity extends Activity
         siteSpinner.setAdapter(adapter);
     }
     
-    // Connects to site to scrape your teams roster, and will then start home page activity.
-    // Home page will show your roster and whatnot
-    // Possibly home page will list your teams at that site?
+    // Loads the HomePageActivity if login credentials are correct
     public void loadHomePage(View view) 
     {
         ProgressDialog progress = new ProgressDialog(this);
         progress.setMessage("Loading...");
         new GetTeamLinksTask(progress).execute();
     }
-        
     
+    public void incorrectUserOrPassword() {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    // Get team links asynchronously so we can display progress dialog
     public class GetTeamLinksTask extends AsyncTask<Void, Void, Elements> 
     {
         private ProgressDialog progress;
@@ -88,7 +93,7 @@ public class MainActivity extends Activity
             String username = inputUsername.getText().toString();
             String password = inputPassword.getText().toString();
             
-            SiteName sitename = SiteName.YAHOO;
+            SiteName sitename = SiteName.YAHOO; //hardcode
               
             String loginUrl = "";
             String loginField = "";
@@ -130,11 +135,11 @@ public class MainActivity extends Activity
             }
               
             // If the login was incorrect, no cookies will be returned
-            if (loginCookies.size() == 0) 
+            if (loginCookies.size() != 0) 
             {
-                return null;
+                loginVerified = true;
             }
-              
+            
             // Get all the links to your teams on this site
             try 
             {
@@ -157,10 +162,17 @@ public class MainActivity extends Activity
         public void onPostExecute(Elements teamLinks) 
         {
             progress.dismiss();
-            Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
-            intent.putExtra(USERNAME, "teh_neilson");
-            startActivity(intent);
-            finish();
+            if (loginVerified)
+            {
+                Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
+                intent.putExtra(USERNAME, "teh_neilson"); //hardcode
+                startActivity(intent);
+                finish();
+            }
+            else
+            {
+                incorrectUserOrPassword();
+            }
         }
     }
 }
