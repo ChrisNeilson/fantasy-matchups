@@ -77,86 +77,90 @@ public class MainActivity extends Activity
             this.progress = progress;
         }
     
-          public void onPreExecute() 
-          {
+        public void onPreExecute() 
+        {
             progress.show();
-          }
+        }
     
-          public Elements doInBackground(Void... unused) 
-          {
-              String site = siteSpinner.getSelectedItem().toString();
-              String username = inputUsername.getText().toString();
-              String password = inputPassword.getText().toString();
+        public Elements doInBackground(Void... unused) 
+        {
+            String site = siteSpinner.getSelectedItem().toString();
+            String username = inputUsername.getText().toString();
+            String password = inputPassword.getText().toString();
+            
+            SiteName sitename = SiteName.YAHOO;
               
-              SiteName sitename = SiteName.YAHOO;
+            String loginUrl = "";
+            String loginField = "";
+            String passwordField = "";
+            switch (sitename)
+            {
+                case CBS:
+                    break;
+                case NFL:
+                    break;
+                case TSN:
+                    break;
+                case YAHOO:
+                    loginUrl = "https://login.yahoo.com/config/login?.src=spt&.intl=us&.lang=en-US&.done=http://football.fantasysports.yahoo.com/";
+                    loginField = "login";
+                    passwordField = "passwd";
+                    break;
+            }
               
-              String loginUrl = "";
-              String loginField = "";
-              String passwordField = "";
-              switch (sitename)
-              {
-                  case CBS:
-                      break;
-                  case NFL:
-                      break;
-                  case TSN:
-                      break;
-                  case YAHOO:
-                      loginUrl = "https://login.yahoo.com/config/login?.src=spt&.intl=us&.lang=en-US&.done=http://football.fantasysports.yahoo.com/";
-                      loginField = "login";
-                      passwordField = "passwd";
-                      break;
-              }
+            Connection.Response response = null;
+            Map<String, String> loginCookies = new HashMap<String, String>();
               
-              Connection.Response response = null;
-              Map<String, String> loginCookies = new HashMap<String, String>();
-              
-              try {
+            try 
+            {
                 response = Jsoup.connect(loginUrl)
-                          .data(loginField, username, passwordField, password)
-                          .method(Method.POST)
-                          .execute();
-            } catch (IOException e) {
+                        .data(loginField, username, passwordField, password)
+                        .method(Method.POST)
+                        .execute();
+            }
+            catch (IOException e) 
+            {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
               
-              if (response != null)
-              {
-                  loginCookies = response.cookies();
-              }
+            if (response != null)
+            {
+                loginCookies = response.cookies();
+            }
               
-              // If the login was incorrect, no cookies will be returned
-              if (loginCookies.size() == 0) 
-              {
-                  return null;
-              }
+            // If the login was incorrect, no cookies will be returned
+            if (loginCookies.size() == 0) 
+            {
+                return null;
+            }
               
-              // Get all the links to your teams on this site
-            try {
+            // Get all the links to your teams on this site
+            try 
+            {
                 Document doc = Jsoup.connect("http://football.fantasysports.yahoo.com/")
                       .cookies(loginCookies)
                       .get();
                 
                 Elements teamLinks = doc.select("a[class][href^=http://football.fantasysports.yahoo.com/f1/]");
                 return teamLinks;
-            } catch (IOException e) {
+            } 
+            catch (IOException e)
+            {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
               
             return null;
-          }
+        }
     
-          public void onPostExecute(Elements teamLinks) 
-          {
+        public void onPostExecute(Elements teamLinks) 
+        {
             progress.dismiss();
             Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
             intent.putExtra(USERNAME, "teh_neilson");
             startActivity(intent);
             finish();
-          }
-    
+        }
     }
-    
 }
