@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 public class MainActivity extends Activity 
 {
@@ -67,9 +68,10 @@ public class MainActivity extends Activity
         new GetTeamLinksTask(progress).execute();
     }
     
-    public void incorrectUserOrPassword() {
-        // TODO Auto-generated method stub
-        
+    public void incorrectUserOrPassword() 
+    {
+        TextView textview = (TextView) findViewById(R.id.incorrect);
+        textview.setVisibility(0);
     }
     
     // Get team links asynchronously so we can display progress dialog
@@ -166,7 +168,7 @@ public class MainActivity extends Activity
             if (loginVerified)
             {
                 Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
-                intent.putExtra(USERNAME, "teh_neilson"); //hardcode
+                intent.putExtra(USERNAME, inputUsername.getText().toString()); 
                 startActivity(intent);
                 finish();
             }

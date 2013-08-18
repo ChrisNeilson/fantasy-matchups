@@ -27,13 +27,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
     />
+    <!--  Incorrect Username Or Password Text -->
+     <TextView
+        android:id="@+id/incorrect"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/incorrectUserOrPass"
+        android:textColor="#FF0000"
+        android:visibility="invisible"
+        android:gravity="center_horizontal"
+        android:textSize="16sp" 
+        />
     <!-- layout for Username -->
     <LinearLayout
             android:layout_width="fill_parent"
       android:layout_height="wrap_content"
       android:orientation="horizontal"
       android:layout_weight="0.01"
-      android:layout_marginTop="50dp"
+      android:layout_marginTop="20dp"
       android:padding="10dp">
 
         <EditText
