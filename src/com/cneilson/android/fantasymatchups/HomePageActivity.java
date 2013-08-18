@@ -17,7 +17,6 @@ public class HomePageActivity extends Activity {
         super.onCreate(savedInstanceState);
         
         Intent intent = getIntent();
-        String username = intent.getStringExtra("USERNAME");
         
         setContentView(R.layout.activity_load_home_page);
     }

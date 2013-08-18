@@ -8,6 +8,7 @@ import org.jsoup.Connection;
 import org.jsoup.Connection.Method;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import android.app.Activity;
@@ -27,7 +28,7 @@ public class MainActivity extends Activity
     EditText inputUsername;
     EditText inputPassword;
     Spinner siteSpinner;
-    String USERNAME;
+    String TEAMSANDLEAGUES;
     Boolean loginVerified;
 
     @Override
@@ -75,7 +76,7 @@ public class MainActivity extends Activity
     }
     
     // Get team links asynchronously so we can display progress dialog
-    public class GetTeamLinksTask extends AsyncTask<Void, Void, Elements> 
+    public class GetTeamLinksTask extends AsyncTask<Void, Void, HashMap<String, String>> 
     {
         private ProgressDialog progress;
     
@@ -90,7 +91,7 @@ public class MainActivity extends Activity
             progress.show();
         }
     
-        public Elements doInBackground(Void... unused) 
+        public HashMap<String, String> doInBackground(Void... unused) 
         {
             String site = siteSpinner.getSelectedItem().toString();
             String username = inputUsername.getText().toString();
@@ -101,6 +102,9 @@ public class MainActivity extends Activity
             String loginUrl = "";
             String loginField = "";
             String passwordField = "";
+            String topLevelUrl = "";
+            String teamNameSearch = "";
+            String leagueNameSearch = "";
             switch (sitename)
             {
                 case CBS:
@@ -113,6 +117,9 @@ public class MainActivity extends Activity
                     loginUrl = "https://login.yahoo.com/config/login?.src=spt&.intl=us&.lang=en-US&.done=http://football.fantasysports.yahoo.com/";
                     loginField = "login";
                     passwordField = "passwd";
+                    topLevelUrl = "http://football.fantasysports.yahoo.com/";
+                    teamNameSearch = "a[class][href^=http://football.fantasysports.yahoo.com/f1/]";
+                    leagueNameSearch = "a[href^=http://football.fantasysports.yahoo.com/f1/]";
                     break;
             }
               
@@ -138,20 +145,29 @@ public class MainActivity extends Activity
             }
               
             // If the login was incorrect, no cookies will be returned
-            if (loginCookies.size() != 0) 
+            if (loginCookies.size() == 0) 
             {
-                loginVerified = true;
+                return null;
             }
+            loginVerified = true;
             
             // Get all the links to your teams on this site
             try 
             {
-                Document doc = Jsoup.connect("http://football.fantasysports.yahoo.com/")
+                Document doc = Jsoup.connect(topLevelUrl)
                       .cookies(loginCookies)
                       .get();
                 
-                Elements teamLinks = doc.select("a[class][href^=http://football.fantasysports.yahoo.com/f1/]");
-                return teamLinks;
+                Elements teamLinks = doc.select(teamNameSearch);
+                Elements leagueLinks = doc.select(leagueNameSearch).not(teamNameSearch);
+                
+                HashMap<String, String> teamsAndLeagues = new HashMap<String, String>();
+                int index = 0;
+                for (Element teamLink : teamLinks)
+                {
+                    teamsAndLeagues.put(nameParse(leagueLinks.get(index++)), nameParse(teamLink));
+                }
+                return teamsAndLeagues;
             } 
             catch (IOException e)
             {
@@ -162,13 +178,18 @@ public class MainActivity extends Activity
             return null;
         }
     
-        public void onPostExecute(Elements teamLinks) 
+        private String nameParse(Element name) 
+        {
+            return name.text();
+        }
+
+        public void onPostExecute(HashMap<String, String> teamsAndLeagues) 
         {
             progress.dismiss();
             if (loginVerified)
             {
                 Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
-                intent.putExtra(USERNAME, inputUsername.getText().toString()); 
+                intent.putExtra(TEAMSANDLEAGUES, teamsAndLeagues); 
                 startActivity(intent);
                 finish();
             }
