@@ -103,14 +103,15 @@ public class MainActivity extends Activity
             String topLevelUrl = "";
             String teamNameSearch = "";
             String leagueNameSearch = "";
+            Map<String, String> connectionData = new HashMap<String, String>(); 
             switch (sitename)
             {
                 case CBS:
                     break;
                 case NFL:
                 	loginUrl = "https://id2.s.nfl.com/fans/mobile/login?s=fantasy&returnTo=http%3A%2F%2Fm.fantasy.nfl.com%2F";
-                	loginField = "username";
-                	passwordField = "password";
+                	connectionData.put("username", username);
+                	connectionData.put("password", password);
                 	topLevelUrl = "http://fantasy.nfl.com/myleagues";
                 	teamNameSearch = "a:matches(/league/[0-9]+/team/)";
                 	leagueNameSearch = "a[href~=/league/[0-9]+$]";
@@ -119,8 +120,8 @@ public class MainActivity extends Activity
                     break;
                 case YAHOO:
                     loginUrl = "https://login.yahoo.com/config/login?.src=spt&.intl=us&.lang=en-US&.done=http://football.fantasysports.yahoo.com/";
-                    loginField = "login";
-                    passwordField = "passwd";
+                    connectionData.put("login", username);
+                    connectionData.put("passwd", password);
                     topLevelUrl = "http://football.fantasysports.yahoo.com/";
                     teamNameSearch = "a[class][href^=http://football.fantasysports.yahoo.com/f1/]";
                     leagueNameSearch = "a[href^=http://football.fantasysports.yahoo.com/f1/]";
@@ -133,8 +134,7 @@ public class MainActivity extends Activity
             try 
             {
                 response = Jsoup.connect(loginUrl)
-                		.followRedirects(true)
-                        .data(loginField, username, passwordField, password, "checkbox", "false")
+                        .data(connectionData)
                         .method(Method.POST)
                         .execute();
             }
@@ -143,8 +143,9 @@ public class MainActivity extends Activity
                 // TODO Auto-generated catch block
             	System.out.println(e.getMessage());
                 e.printStackTrace();
+                System.out.println("RAJEEV: response error'd");
             }
-              
+            System.out.println("RAJEEV:REACHING AFTER");  
             if (response != null)
             {
                 loginCookies = response.cookies();
@@ -177,6 +178,7 @@ public class MainActivity extends Activity
             catch (IOException e)
             {
                 // TODO Auto-generated catch block
+            	System.out.println(e.getMessage());
                 e.printStackTrace();
             }
               
