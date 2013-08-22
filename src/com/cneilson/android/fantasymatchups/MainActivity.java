@@ -98,8 +98,6 @@ public class MainActivity extends Activity
             SiteName sitename = SiteName.determineSiteName(site);
               
             String loginUrl = "";
-            String loginField = "";
-            String passwordField = "";
             String topLevelUrl = "";
             String teamNameSearch = "";
             String leagueNameSearch = "";
@@ -112,9 +110,9 @@ public class MainActivity extends Activity
                 	loginUrl = "https://id2.s.nfl.com/fans/mobile/login?s=fantasy&returnTo=http%3A%2F%2Fm.fantasy.nfl.com%2F";
                 	connectionData.put("username", username);
                 	connectionData.put("password", password);
-                	topLevelUrl = "http://fantasy.nfl.com/myleagues";
-                	teamNameSearch = "a:matches(/league/[0-9]+/team/)";
-                	leagueNameSearch = "a[href~=/league/[0-9]+$]";
+                	topLevelUrl = "http://m.fantasy.nfl.com/myfantasy";
+                	teamNameSearch = "a[href*=teamId]";
+                	leagueNameSearch = teamNameSearch + "span:not([class])";
                 	break;
                 case TSN:
                     break;
@@ -124,7 +122,7 @@ public class MainActivity extends Activity
                     connectionData.put("passwd", password);
                     topLevelUrl = "http://football.fantasysports.yahoo.com/";
                     teamNameSearch = "a[class][href^=http://football.fantasysports.yahoo.com/f1/]";
-                    leagueNameSearch = "a[href^=http://football.fantasysports.yahoo.com/f1/]";
+                    leagueNameSearch = "a[href^=http://football.fantasysports.yahoo.com/f1/]:not([class])";
                     break;
             }
               
@@ -143,9 +141,8 @@ public class MainActivity extends Activity
                 // TODO Auto-generated catch block
             	System.out.println(e.getMessage());
                 e.printStackTrace();
-                System.out.println("RAJEEV: response error'd");
             }
-            System.out.println("RAJEEV:REACHING AFTER");  
+            
             if (response != null)
             {
                 loginCookies = response.cookies();
@@ -165,13 +162,28 @@ public class MainActivity extends Activity
                       .get();
                 
                 Elements teamLinks = doc.select(teamNameSearch);
-                Elements leagueLinks = doc.select(leagueNameSearch).not(teamNameSearch);
+                Elements leagueLinks = doc.select(leagueNameSearch);
                 
                 HashMap<String, String> teamsAndLeagues = new HashMap<String, String>();
+                
                 int index = 0;
                 for (Element teamLink : teamLinks)
                 {
-                    teamsAndLeagues.put(nameParse(leagueLinks.get(index++)), nameParse(teamLink));
+                	switch (sitename)
+                	{
+                	case NFL:
+                		String tName = teamLink.select("span[class=mfTeamName]").text();
+                		String lName = teamLink.select("span:not([class])").text().substring(2);
+                		teamsAndLeagues.put(tName, lName);
+                		break;
+                	case CBS:
+                	case TSN:
+                	case YAHOO:
+                		teamsAndLeagues.put(nameParse(leagueLinks.get(index++)), nameParse(teamLink));
+                		break;
+                	default: teamsAndLeagues.put(nameParse(leagueLinks.get(index++)), nameParse(teamLink));
+                	}
+                	
                 }
                 return teamsAndLeagues;
             } 
