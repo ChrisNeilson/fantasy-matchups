@@ -74,7 +74,7 @@ public class MainActivity extends Activity
     }
     
     // Get team links asynchronously so we can display progress dialog
-    public class GetTeamLinksTask extends AsyncTask<Void, Void, HashMap<String, String>> 
+    public class GetTeamLinksTask extends AsyncTask<Void, Void, HashMap<String, FantasyTeam>> 
     {
         private ProgressDialog progress;
     
@@ -89,7 +89,7 @@ public class MainActivity extends Activity
             progress.show();
         }
     
-        public HashMap<String, String> doInBackground(Void... unused) 
+        public HashMap<String, FantasyTeam> doInBackground(Void... unused) 
         {
             String site = siteSpinner.getSelectedItem().toString();
             String username = inputUsername.getText().toString();
@@ -164,7 +164,8 @@ public class MainActivity extends Activity
                 Elements teamLinks = doc.select(teamNameSearch);
                 Elements leagueLinks = doc.select(leagueNameSearch);
                 
-                HashMap<String, String> teamsAndLeagues = new HashMap<String, String>();
+                // teamsAndLeagues maps the leagueId to FantasyTeam class
+                HashMap<String, FantasyTeam> teamsAndLeagues = new HashMap<String, FantasyTeam>();
                 
                 int index = 0;
                 for (Element teamLink : teamLinks)
@@ -174,14 +175,18 @@ public class MainActivity extends Activity
                 	case NFL:
                 		String tName = teamLink.select("span[class=mfTeamName]").text();
                 		String lName = teamLink.select("span:not([class])").text().substring(2);
-                		teamsAndLeagues.put(tName, lName);
+                		FantasyTeam nTeam = new NflFantasyTeam(tName, lName);
+                		nTeam.setLink(teamLink);
+                		teamsAndLeagues.put(nTeam.getId(), nTeam);
                 		break;
                 	case CBS:
                 	case TSN:
                 	case YAHOO:
-                		teamsAndLeagues.put(nameParse(leagueLinks.get(index++)), nameParse(teamLink));
+                		FantasyTeam yTeam = new YahooFantasyTeam(nameParse(leagueLinks.get(index++)), nameParse(teamLink));
+                		yTeam.setLink(teamLink);
+                		teamsAndLeagues.put(yTeam.getId(), yTeam);
                 		break;
-                	default: teamsAndLeagues.put(nameParse(leagueLinks.get(index++)), nameParse(teamLink));
+                	default: continue;
                 	}
                 	
                 }
